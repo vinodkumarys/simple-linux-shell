@@ -1,1 +1,1 @@
-gcc main.c -lncurses -lreadline
+gcc main.c -m32 -lncurses -lreadline -static-libgcc

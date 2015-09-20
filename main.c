@@ -23,7 +23,7 @@
 #include <sys/utsname.h>	/* system information */
 #include <sys/sysinfo.h>	/* system statistics information */
 
-#define USE_EXPAND
+/*#define USE_EXPAND*/
 
 /*--------------- Internal commands Fuction Prototypes ---------------------*/
 
@@ -194,10 +194,13 @@ int main(int argc,char *argv[],char **envp)
   char *tmpstr,*s;
   char **commands,**rd_commands,**args_list;
   char **tmp_list1,**tmp_list2,**tmp_list3;
-  REDIRECT rd;
 
+  REDIRECT rd;
+  
   for(;;)
   {
+
+	printf("waiting for intput:");
     /* read user input */
     buf = readline(get_prompt());
     if (!buf) break;
