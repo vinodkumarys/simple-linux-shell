@@ -91,7 +91,9 @@ char *look_for_executable(const char *cmd)
       bzero(&stat_buf,sizeof(stat_buf));
       stat(path_entry_buf,&stat_buf);
       if(S_ISREG(stat_buf.st_mode))
+      {
 	return path_entry_buf;
+      }
     }
 
   free_make_tokens(path_entries);

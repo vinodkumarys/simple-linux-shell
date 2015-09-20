@@ -65,12 +65,12 @@ internal_command cmd_list[] =
   {"md", "make directory", md_handler}, 
   {"cd", "change directory", cd_handler}, 
   {"rd", "remove directory", rd_handler}, 
-  {"print", "prints the give string onto standard output", print_handler}, 
+  /*{"print", "prints the give string onto standard output", print_handler},*/ 
   {"date", "display system date", date_handler}, 
   {"copy", "copy file from one location to another", copy_handler}, 
   {"move", "move file from one location to another", move_handler}, 
   {"del", "deletes a file", del_handler}, 
-  {"ren", "renames a file", del_handler}, 
+  /*{"ren", "renames a file", ren_handler},*/ 
   {"fcat", "fcat files and displays it on standard output", fcat_handler}, 
   {"hex", "display hex dump of the given file", hex_handler}, 
   {"cwd", "display current working directory", cwd_handler}, 
@@ -195,8 +195,6 @@ int main(int argc, char *argv[], char **envp)
   
   for(;;)
   {
-
-	printf("waiting for intput:");
     /* read user input */
     buf = readline(get_prompt());
     if (!buf) break;

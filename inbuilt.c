@@ -340,7 +340,7 @@ int dir_handler(int argc, char* argv[])
 	  *(strtime + 12) = '\0'; /* skip seconds and year */
 	  
       /* Print the type and path of the entry. */
-      fprintf (my_stdout,"<%s> %9u %s %s\n",type,file_stat.st_size,strtime,entry->d_name);
+      fprintf (my_stdout,"<%s> %9ld %s %s\n",type,(long)file_stat.st_size,strtime,entry->d_name);
     }
   
   /* all done */
@@ -372,24 +372,8 @@ int date_handler(int argc,char **argv)
 }
 
 /*--------------------------------------------------------------------------*\
-	date_handler() - display current date and time
+	sysinfo_handler() - displays system information
 \*--------------------------------------------------------------------------*/
-int print_handler(int argc,char **argv)
-{
-  int i;
-  char *tmpstr;
-  for(i = 1;i < argc;i++)
-    if(argv[i][0] != '$')
-      fprintf(my_stdout,"%s ",argv[i]);
-    else
-      {
-        tmpstr = argv[1];
-        tmpstr++;
-        fprintf(my_stdout,getenv(tmpstr));
-      }
-  fprintf(my_stdout,"\n");
-}
-
 int sysinfo_handler(int argc,char **argv)
 {
   /* Conversion constants.  */

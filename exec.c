@@ -10,7 +10,7 @@ int execute(char *program, char **args)
   child_pid = fork();
   if(child_pid == 0)
   {
-    /* execve(program, args, environ); */
+    execve(program, args, environ);
       
     fprintf(stderr, "Error executing %s : %s.", program, strerror(errno));
     abort();

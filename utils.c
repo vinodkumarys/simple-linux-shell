@@ -165,17 +165,5 @@ int strchrcount(char *str,char ch)
 \*----------------------------------------------------------------------------*/
 const char *get_prompt()
 {
-  static char *prompt;
-  char *uname = getenv("LOGNAME");
-  char *hname = getenv("HOSTNAME"), *short_hname;
-  char mypwd[PATH_MAX + 1];
-  getcwd(mypwd,PATH_MAX);
-  short_hname = strsep(&hname,".");
-
-  if(prompt != NULL)
-    free(prompt);
-  prompt = (char *)malloc(strlen(uname)+strlen(short_hname)+strlen(mypwd)+5);
-
-  sprintf(prompt,"%s@%s:%s$ ",uname,short_hname,mypwd);
-  return prompt;
+    return "$ ";
 }
