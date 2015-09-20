@@ -5,7 +5,7 @@
 \*--------------------------------------------------------------------------*/
 int make_tokens(const char *s, const char *delimiters, char ***argvp)
 {
-  int error,i,numtokens;
+  int error, i, numtokens;
   char *t;
   const char *snew;
 
@@ -97,5 +97,3 @@ char *look_for_executable(const char *cmd)
   free_make_tokens(path_entries);
   return NULL;
 }
-
-/*--------------------------- End Of File ----------------------------------*/

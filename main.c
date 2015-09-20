@@ -13,38 +13,36 @@
 #include <unistd.h>
 #include <assert.h>
 
-#include <readline/readline.h>	/* for user input and command history */
+#include <readline/readline.h>      /* for user input and command history */
 
 #include <readline/history.h>
 
-#include <sys/stat.h>	/* for file information */
+#include <sys/stat.h>               /* for file information */
 #include <sys/wait.h>
 
-#include <sys/utsname.h>	/* system information */
-#include <sys/sysinfo.h>	/* system statistics information */
-
-/*#define USE_EXPAND*/
+#include <sys/utsname.h>            /* for system information */
+#include <sys/sysinfo.h>            /* for system statistics information */
 
 /*--------------- Internal commands Fuction Prototypes ---------------------*/
 
-int exit_handler(int,char **);
-int md_handler(int,char **);
-int cd_handler(int,char **);
-int rd_handler(int,char **);
-int cwd_handler(int,char **);
-int env_handler(int,char **);
-int date_handler(int,char **);
-int about_handler(int,char **);
-int help_handler(int,char **);
-int dir_handler(int,char **);
-int hex_handler(int,char **);
-int copy_handler(int,char **);
-int move_handler(int,char **);
-int del_handler(int,char **);
-int sysinfo_handler(int,char **);
-int ren_handler(int,char **);
-int fcat_handler(int,char **);
-int print_handler(int,char **);
+int exit_handler(int, char **);
+int md_handler(int, char **);
+int cd_handler(int, char **);
+int rd_handler(int, char **);
+int cwd_handler(int, char **);
+int env_handler(int, char **);
+int date_handler(int, char **);
+int about_handler(int, char **);
+int help_handler(int, char **);
+int dir_handler(int, char **);
+int hex_handler(int, char **);
+int copy_handler(int, char **);
+int move_handler(int, char **);
+int del_handler(int, char **);
+int sysinfo_handler(int, char **);
+int ren_handler(int, char **);
+int fcat_handler(int, char **);
+int print_handler(int, char **);
 
 /*------------------------- Global Variables -------------------------------*/
 
@@ -55,29 +53,29 @@ typedef struct
 {
   char *cmd;
   char *info;
-  int (*handler)(int argc,char **argv);
+  int (*handler)(int argc, char **argv);
 }internal_command;
 
 internal_command cmd_list[] =
 {
-  {"env","display environment variables",env_handler},
-  {"dir","list all the files in the current directory",dir_handler},
-  {"help","display this help",help_handler},
-  {"about","diplay about information",about_handler},
-  {"md","make directory",md_handler},
-  {"cd","change directory",cd_handler},
-  {"rd","remove directory",rd_handler},
-  {"print","prints the give string onto standard output",print_handler},
-  {"date","display system date",date_handler},
-  {"copy","copy file from one location to another",copy_handler},
-  {"move","move file from one location to another",move_handler},
-  {"del","deletes a file",del_handler},
-  {"ren","renames a file",del_handler},
-  {"fcat","fcat files and displays it on standard output",fcat_handler},
-  {"hex","display hex dump of the given file",hex_handler},
-  {"cwd","display current working directory",cwd_handler},
-  {"sysinfo","display system information",sysinfo_handler},
-  {"exit","exit shell",exit_handler}
+  {"env", "display environment variables", env_handler}, 
+  {"dir", "list all the files in the current directory", dir_handler}, 
+  {"help", "display this help", help_handler}, 
+  {"about", "diplay about information", about_handler}, 
+  {"md", "make directory", md_handler}, 
+  {"cd", "change directory", cd_handler}, 
+  {"rd", "remove directory", rd_handler}, 
+  {"print", "prints the give string onto standard output", print_handler}, 
+  {"date", "display system date", date_handler}, 
+  {"copy", "copy file from one location to another", copy_handler}, 
+  {"move", "move file from one location to another", move_handler}, 
+  {"del", "deletes a file", del_handler}, 
+  {"ren", "renames a file", del_handler}, 
+  {"fcat", "fcat files and displays it on standard output", fcat_handler}, 
+  {"hex", "display hex dump of the given file", hex_handler}, 
+  {"cwd", "display current working directory", cwd_handler}, 
+  {"sysinfo", "display system information", sysinfo_handler}, 
+  {"exit", "exit shell", exit_handler}
 };
 
 int cmd_count = sizeof(cmd_list)/sizeof(internal_command);
@@ -90,14 +88,9 @@ int cmd_count = sizeof(cmd_list)/sizeof(internal_command);
 #include "exec.c"
 #include "redirect.c"
 
-#ifdef USE_EXPAND
-char ex_buf[5000];
-#include "expand.c"
-#endif
-
 /*--------------------- Execute command Functions --------------------------*/
 
-int execute_external_cmd(char *cmd,char **args,REDIRECT *rd)
+int execute_external_cmd(char *cmd, char **args, REDIRECT *rd)
 {
   char *exe_path;
 
@@ -111,73 +104,76 @@ int execute_external_cmd(char *cmd,char **args,REDIRECT *rd)
   {
       /* args[0] = exe_path_buf; */
      if( rd->rd_type == 0 )
-       execute(exe_path,args);
+       execute(exe_path, args);
      else
-       redirect_execute(exe_path,args,rd);
+       redirect_execute(exe_path, args, rd);
   }
   else /* progam not found */
-    printf("\"%s\" command not found.\n",cmd);
+    printf("\"%s\" command not found.\n", cmd);
   return 0;
 }
 
-int execute_internal_cmd(char *cmd,int argc,char **argv,REDIRECT *rd)
+int execute_internal_cmd(char *cmd, int argc, char **argv, REDIRECT *rd)
 {
   int i;
   for(i=0;i < cmd_count;i++)
-  if(!strcmp(cmd_list[i].cmd,cmd)) /* true if cmd is an internal command */
   {
-    /* check for redirection and open corresponding files*/
-	
-    if((rd->rd_type & RD_STDIN) ==  RD_STDIN)
-    {
-	  if((my_stdin = fopen(rd->in_file,"r")) == NULL)
-	  {
-	    fprintf(stderr,"Error : %s\n",strerror(errno));
-	    return 0;
-	  }
-    }
-    else
-      my_stdin = stdin;
+      if(!strcmp(cmd_list[i].cmd, cmd)) /* true if cmd is an internal command */
+      {
+        /* check for redirection and open corresponding files*/
 
-    if((rd->rd_type & RD_STDOUT) ==  RD_STDOUT)
-    {
-	  if((my_stdout = fopen(rd->out_file,"w")) == NULL)
-	  {
-	    fprintf(stderr,"Error : %s\n",strerror(errno));
-	    return 0;
-	  }
-    }
-    else
-      my_stdout = stdout;
+        if((rd->rd_type & RD_STDIN) ==  RD_STDIN)
+        {
+          if((my_stdin = fopen(rd->in_file, "r")) == NULL)
+          {
+            fprintf(stderr, "Error : %s\n", strerror(errno));
+            return 0;
+          }
+        }
+        else
+          my_stdin = stdin;
 
-    if((rd->rd_type & RD_STDERR) ==  RD_STDERR)
-    {
-	  if((my_stderr = fopen(rd->err_file,"w")) == NULL)
-	  {
-	    fprintf(stderr,"Error : %s\n",strerror(errno));
-	    return 0;
-	  }
-    }
-    else
-      my_stderr = stderr;
+        if((rd->rd_type & RD_STDOUT) ==  RD_STDOUT)
+        {
+          if((my_stdout = fopen(rd->out_file, "w")) == NULL)
+          {
+            fprintf(stderr, "Error : %s\n", strerror(errno));
+            return 0;
+          }
+        }
+        else
+          my_stdout = stdout;
 
-	/* execute the internal command */
-    cmd_list[i].handler(argc,argv);
+        if((rd->rd_type & RD_STDERR) ==  RD_STDERR)
+        {
+          if((my_stderr = fopen(rd->err_file, "w")) == NULL)
+          {
+            fprintf(stderr, "Error : %s\n", strerror(errno));
+            return 0;
+          }
+        }
+        else
+          my_stderr = stderr;
 
-	/* close opened files */
-    if((rd->rd_type & RD_STDIN) ==  RD_STDIN)
-       fclose(my_stdin);
-    if((rd->rd_type & RD_STDOUT) ==  RD_STDOUT)
-       fclose(my_stdout);
-    if((rd->rd_type & RD_STDERR) ==  RD_STDERR)
-       fclose(my_stderr);
+        /* execute the internal command */
+        cmd_list[i].handler(argc, argv);
 
-    return 0; /* internal command executed sucessfull */
+        /* close opened files */
+        if((rd->rd_type & RD_STDIN) ==  RD_STDIN)
+           fclose(my_stdin);
+        if((rd->rd_type & RD_STDOUT) ==  RD_STDOUT)
+           fclose(my_stdout);
+        if((rd->rd_type & RD_STDERR) ==  RD_STDERR)
+           fclose(my_stderr);
+
+        return 0; /* internal command executed sucessfull */
+      }
   }
+    
   return 1; /* not an internal command */
 }
 
-int execute_command(int argc,char **argv,REDIRECT *rd)
+int execute_command(int argc, char **argv, REDIRECT *rd)
 { 
    /* if cmd is not an internal cmd, execute it as external cmd */
    if(execute_internal_cmd(argv[0],argc,argv,rd) != 0)
@@ -186,14 +182,14 @@ int execute_command(int argc,char **argv,REDIRECT *rd)
 
 /*----------------------------- Main Fucntion ------------------------------*/
 
-int main(int argc,char *argv[],char **envp)
+int main(int argc, char *argv[], char **envp)
 {
-  int cmd_count,rd_cmds_count,args_count;
-  int n,i,j,k,l,z;
-  int nrdl,nrdg,irdi,irdo,irde,rdgf,lrdl,lrdg1,lrdg2;
-  char *tmpstr,*s;
-  char **commands,**rd_commands,**args_list;
-  char **tmp_list1,**tmp_list2,**tmp_list3;
+  int cmd_count, rd_cmds_count, args_count;
+  int n, i, j, k, l, z;
+  int nrdl, nrdg, irdi, irdo, irde, rdgf, lrdl, lrdg1, lrdg2;
+  char *tmpstr, *s;
+  char **commands, **rd_commands, **args_list;
+  char **tmp_list1, **tmp_list2, **tmp_list3;
 
   REDIRECT rd;
   
@@ -214,13 +210,8 @@ int main(int argc,char *argv[],char **envp)
        continue;
     }
 	
-	#ifdef USE_EXPAND
-	expand();
-	printf("%s\n",ex_buf);
-	#endif
-	
     /* check for multiple commands. ';' is used as the delimiter */
-    cmd_count = make_tokens(buf,";",&commands);
+    cmd_count = make_tokens(buf, ";", &commands);
 
     for(i=0;i < cmd_count;i++)
     {
@@ -229,14 +220,14 @@ int main(int argc,char *argv[],char **envp)
        rd.in_file = rd.out_file = rd.err_file = NULL;
 
        /* check if redirection is used */
-       if(  strchr(commands[i],'>') != NULL ||
-	    strchr(commands[i],'<') != NULL  )
+       if(  strchr(commands[i], '>') != NULL ||
+	    strchr(commands[i], '<') != NULL  )
        {
   /*------------------------- start redirection -------------------------*/
 
   /* check for no. of '<' and '>'. there can be 2 '>' but only one '<' */
-  nrdl = strchrcount(commands[i],'<');
-  nrdg = strchrcount(commands[i],'>');
+  nrdl = strchrcount(commands[i], '<');
+  nrdg = strchrcount(commands[i], '>');
 
   lrdg1 = lrdg2 = lrdl = 999;
   irdi = irdo = irde = rdgf = 0;
@@ -253,14 +244,14 @@ int main(int argc,char *argv[],char **envp)
 
   if(nrdl == 1)
   {
-    tmpstr = strchr(commands[i],'<');
+    tmpstr = strchr(commands[i], '<');
 	/* get starting location of i/p redirection charater */
     lrdl = strlen(commands[i]) - strlen(tmpstr);
   }
 
   if(nrdg >= 1)
   {
-    tmpstr = strchr(commands[i],'>');
+    tmpstr = strchr(commands[i], '>');
 	/* get starting location of o/p redirection charater */
     lrdg1 = strlen(commands[i]) - strlen(tmpstr);
   }
@@ -269,7 +260,7 @@ int main(int argc,char *argv[],char **envp)
   if(nrdg == 2)
   {
     tmpstr++;
-    tmpstr = strchr(tmpstr,'>');
+    tmpstr = strchr(tmpstr, '>');
 	/* get starting location of stderr redirection charater */
     lrdg2 = strlen(commands[i]) - strlen(tmpstr);
   }
@@ -310,7 +301,7 @@ int main(int argc,char *argv[],char **envp)
   }
   
   /* check is '<' or '>' is the first character itself, then its invalid. */
-  rdgf = make_tokens(commands[i]," \n\t\r",&rd_commands);
+  rdgf = make_tokens(commands[i], " \n\t\r",&rd_commands);
   if(rd_commands[0][0] == '<' || rd_commands[0][0] == '>')
   {
     printf("Error : Invalid redirection command.\n");
@@ -320,14 +311,14 @@ int main(int argc,char *argv[],char **envp)
   free_make_tokens(rd_commands);
 
   /* get file name index in the command for respective redirections */
-  irdi = get3sindex(lrdl,lrdg1,lrdg2,1,rd.rd_type);
-  irdo = get3sindex(lrdl,lrdg1,lrdg2,2,rd.rd_type);
-  irde = get3sindex(lrdl,lrdg1,lrdg2,3,rd.rd_type);
+  irdi = get3sindex(lrdl, lrdg1, lrdg2, 1, rd.rd_type);
+  irdo = get3sindex(lrdl, lrdg1, lrdg2, 2, rd.rd_type);
+  irde = get3sindex(lrdl, lrdg1, lrdg2, 3, rd.rd_type);
 
-  /* printf("irdi = %d\nirdo = %d\nirde = %d",irdi,irdo,irde); */
+  /* printf("irdi = %d\nirdo = %d\nirde = %d", irdi, irdo, irde); */
 
   /* separate the command into exe part and redirection file names part */
-  rd_cmds_count = make_tokens(commands[i],"<>",&rd_commands);
+  rd_cmds_count = make_tokens(commands[i], "<>", &rd_commands);
 
   if( rd_cmds_count > 4 ||
       irdi >= rd_cmds_count ||
@@ -342,27 +333,27 @@ int main(int argc,char *argv[],char **envp)
   /* extract and assign file used for coressponding redirections */
   if((rd.rd_type & RD_STDIN) == RD_STDIN)
   {
-    make_tokens(rd_commands[irdi]," \n\r\t",&tmp_list1);
+    make_tokens(rd_commands[irdi], " \n\r\t", &tmp_list1);
     rd.in_file = tmp_list1[0];
-    /* printf("infile = %s\n",tmp_list1[0]); */
+    /* printf("infile = %s\n", tmp_list1[0]); */
   }
 
   if((rd.rd_type & RD_STDOUT) == RD_STDOUT)
   {
-    make_tokens(rd_commands[irdo]," \n\r\t",&tmp_list2);
+    make_tokens(rd_commands[irdo], " \n\r\t", &tmp_list2);
     rd.out_file = tmp_list2[0];
-    /* printf("outfile = %s\n",tmp_list2[0]); */
+    /* printf("outfile = %s\n", tmp_list2[0]); */
   }
 
   if((rd.rd_type & RD_STDERR) == RD_STDERR)
   {
-    make_tokens(rd_commands[irde]," \n\r\t",&tmp_list3);
+    make_tokens(rd_commands[irde], " \n\r\t", &tmp_list3);
     rd.err_file = tmp_list3[0];
-    /* printf("errfile = %s\n",tmp_list3[0]); */
+    /* printf("errfile = %s\n", tmp_list3[0]); */
   }
 
-  args_count = make_tokens(rd_commands[0]," \n\r\t",&args_list);
-  execute_command(args_count,args_list,&rd);
+  args_count = make_tokens(rd_commands[0], " \n\r\t", &args_list);
+  execute_command(args_count, args_list, &rd);
   free_make_tokens(args_list);
 
   /* free corresponding memory allocated to redirection command tokens */
@@ -384,9 +375,9 @@ int main(int argc,char *argv[],char **envp)
  	  }
 	  else /* comes here if no redirection is used */
 	  {
-	    args_count = make_tokens(commands[i]," \n\r\t",&args_list);
+	    args_count = make_tokens(commands[i], " \n\r\t", &args_list);
 	    if(args_list[0] != NULL)
-	    execute_command(args_count,args_list,&rd);
+	    execute_command(args_count, args_list, &rd);
 	    free_make_tokens(args_list);
 	  }
     } /* multiple commands for loop end */
@@ -400,5 +391,3 @@ int main(int argc,char *argv[],char **envp)
     } /* infinite for loop end */
 	
 } /* main end */
-
-/*----------------------------- End Of File --------------------------------*/

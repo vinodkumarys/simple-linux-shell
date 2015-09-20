@@ -167,7 +167,7 @@ const char *get_prompt()
 {
   static char *prompt;
   char *uname = getenv("LOGNAME");
-  char *hname = getenv("HOSTNAME"),*short_hname;
+  char *hname = getenv("HOSTNAME"), *short_hname;
   char mypwd[PATH_MAX + 1];
   getcwd(mypwd,PATH_MAX);
   short_hname = strsep(&hname,".");
@@ -179,5 +179,3 @@ const char *get_prompt()
   sprintf(prompt,"%s@%s:%s$ ",uname,short_hname,mypwd);
   return prompt;
 }
-
-/*----------------------------- End Of File ----------------------------------*/

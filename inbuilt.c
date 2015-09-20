@@ -1,10 +1,10 @@
 
-FILE *my_stdout,*my_stdin,*my_stderr;
+FILE *my_stdout, *my_stdin, *my_stderr;
 
 /*--------------------------------------------------------------------------*\
 	exit_handler() - exits shell
 \*--------------------------------------------------------------------------*/
-int exit_handler(int argc,char **argv)
+int exit_handler(int argc, char **argv)
 {
   exit(0);
 }
@@ -12,7 +12,7 @@ int exit_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	md_handler() - make directory
 \*--------------------------------------------------------------------------*/
-int md_handler(int argc,char **argv)
+int md_handler(int argc, char **argv)
 {
   /* set dir access permission to 755. only the user has write acess */
   mode_t default_mode = S_IRWXU|~S_IWGRP|~S_IWOTH;
@@ -20,8 +20,8 @@ int md_handler(int argc,char **argv)
   if(argc != 2) /* if no directry name is specified */
     return 1;
 
-  if(mkdir(argv[1],default_mode) != 0) /* if failed */
-    fprintf(my_stderr,"Error : %s\n",strerror(errno));
+  if(mkdir(argv[1], default_mode) != 0) /* if failed */
+    fprintf(my_stderr, "Error : %s\n", strerror(errno));
   
   return 0;
 }
@@ -29,14 +29,14 @@ int md_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	cd_handler() - change directory
 \*--------------------------------------------------------------------------*/
-int cd_handler(int argc,char **argv)
+int cd_handler(int argc, char **argv)
 {
   if(argc != 2) /* if no directry name is specified */
     return 1;
 
   if(chdir(argv[1]) == -1)
     {
-      fprintf(my_stderr,"Error : %s\n",strerror(errno));
+      fprintf(my_stderr, "Error : %s\n", strerror(errno));
       return 1;
     }
   return  0;
@@ -45,13 +45,13 @@ int cd_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	rd_handler() - remove directory
 \*--------------------------------------------------------------------------*/
-int rd_handler(int argc,char **argv)
+int rd_handler(int argc, char **argv)
 {
   if(argc != 2) /* if no directry name is specified */
     return 1;
   
   if(rmdir(argv[1]) != 0) /* if failed */
-    fprintf(my_stderr,"Error : %s\n",strerror(errno));
+    fprintf(my_stderr, "Error : %s\n", strerror(errno));
   
   return 0;
 }
@@ -59,17 +59,17 @@ int rd_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	cwd_handler() - display current working directory
 \*--------------------------------------------------------------------------*/
-int cwd_handler(int argc,char **argv)
+int cwd_handler(int argc, char **argv)
 {
   char my_cwd[PATH_MAX];
   
-  if(getcwd(my_cwd,PATH_MAX) == NULL) /* if failed */
+  if(getcwd(my_cwd, PATH_MAX) == NULL) /* if failed */
     {
-      fprintf(my_stderr,"Error : %s\n",strerror(errno));
+      fprintf(my_stderr, "Error : %s\n", strerror(errno));
       return -1;
     }
   else
-    fprintf(my_stdout,"%s\n",my_cwd);
+    fprintf(my_stdout, "%s\n", my_cwd);
   
   return 0;
 }
@@ -77,46 +77,46 @@ int cwd_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	hex_handler() - display hex dump of the given file
 \*--------------------------------------------------------------------------*/
-int hex_handler(int argc,char **argv)
+int hex_handler(int argc, char **argv)
 {
   unsigned char buffer[16];
   size_t offset = 0;
   size_t bytes_read;
-  int i,fd;
+  int i, fd;
 
-  /* if no arguments are passed, display usage information */
+  /* if no arguments are passed,  display usage information */
   if(argc != 2)
     {
-      fprintf(my_stderr,"Usage : %s <file-name>\n",argv[0]);
+      fprintf(my_stderr, "Usage : %s <file-name>\n", argv[0]);
       return -1;
     }
 
   /* open file in read only mode */
-  if((fd = open( argv[1], O_RDONLY)) == -1)
+  if((fd = open( argv[1],  O_RDONLY)) == -1)
     {
-      fprintf(my_stderr,"Error : %s\n",strerror(errno));
+      fprintf(my_stderr, "Error : %s\n",strerror(errno));
       return -1;
     }
   
   /* read from the file, one chunk (16 bytes) at a time. continue until
      read comes up short, that is, reads less than we asked for. this
-     indicates that weíve hit the end of the file. */
+     indicates that we”∂e hit the end of the file. */
   do
     {
-      /* read the next lineís worth of bytes. */
+      /* read the next line”≥ worth of bytes. */
       bytes_read = read (fd, buffer, sizeof (buffer));
 
       /* print the offset in the file, followed by the bytes themselves. */
-      fprintf(my_stdout,"0x%06x : ", offset);
+      fprintf(my_stdout, "0x%06x : ", offset);
       for (i = 0; i < bytes_read; ++i)
-        fprintf(my_stdout,"%02x ", buffer[i]);
+        fprintf(my_stdout, "%02x ", buffer[i]);
 
-      fprintf(my_stdout,": ");
+      fprintf(my_stdout, ": ");
 
       /* print corresponding ascii values */
       for (i = 0; i < bytes_read; ++i)
-        fprintf(my_stdout,"%c",(isalnum(buffer[i])) ? buffer[i] : '.');
-      fprintf(my_stdout,"\n");
+        fprintf(my_stdout, "%c", (isalnum(buffer[i])) ? buffer[i] : '.');
+      fprintf(my_stdout, "\n");
 
       offset += bytes_read;
     }
@@ -129,35 +129,35 @@ int hex_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	copy_handler() - copy file
 \*--------------------------------------------------------------------------*/
-int copy_handler(int argc,char **argv)
+int copy_handler(int argc, char **argv)
 {
   if(argc != 3) /* if invalid no. of arguments display usage info */
     {
-      fprintf(my_stderr,"Usage : %s <src-file> <dest-file>\n",argv[0]);
+      fprintf(my_stderr, "Usage : %s <src-file> <dest-file>\n", argv[0]);
       return 1;
     }
 
-  return copyfile(argv[1],argv[2]);
+  return copyfile(argv[1], argv[2]);
 }
 
 /*--------------------------------------------------------------------------*\
 	move_handler() - move file
 \*--------------------------------------------------------------------------*/
-int move_handler(int argc,char **argv)
+int move_handler(int argc, char **argv)
 {
   if(argc != 3) /* if invalid no. of arguments display usage info */
     {
-      fprintf(my_stderr,"Usage : %s <src-file> <dest-file>\n",argv[0]);
+      fprintf(my_stderr, "Usage : %s <src-file> <dest-file>\n", argv[0]);
       return 1;
     }
 
   /* first copy the file, and then if sucessfull, try to
      delete the original file. else display error */
-  if(copyfile(argv[1],argv[2]) == 0)
+  if(copyfile(argv[1], argv[2]) == 0)
     {
       if(unlink(argv[1]) == -1)
         {
-          fprintf(my_stderr,"Error : %s\n",strerror(errno));
+          fprintf(my_stderr, "Error : %s\n", strerror(errno));
           return 2;
         }
     }
@@ -168,18 +168,18 @@ int move_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	del_handler() - delete file
 \*--------------------------------------------------------------------------*/
-int del_handler(int argc,char **argv)
+int del_handler(int argc, char **argv)
 {
   if(argc != 2) /* if invalid no. of arguments display usage info */
     {
-      fprintf(my_stderr,"Usage : %s <file-name>\n",argv[0]);
+      fprintf(my_stderr, "Usage : %s <file-name>\n", argv[0]);
       return 1;
     }
 
   /* try to delete the file, if unsucessfull, display error */
   if(unlink(argv[1]) == -1)
     {
-      fprintf(my_stderr,"Error : %s\n",strerror(errno));
+      fprintf(my_stderr, "Error : %s\n", strerror(errno));
       return 2;
     }
 
@@ -189,7 +189,7 @@ int del_handler(int argc,char **argv)
 /*--------------------------------------------------------------------------*\
 	rem_handler() - delete file
 \*--------------------------------------------------------------------------*/
-int rem_handler(int argc,char **argv)
+int rem_handler(int argc, char **argv)
 {
   if(argc != 3) /* if invalid no. of arguments display usage info */
     {
@@ -307,7 +307,7 @@ int dir_handler(int argc, char* argv[])
   strncpy (entry_path, dir_path, sizeof (entry_path));
   path_len = strlen (dir_path);
   
-  /* If the directory path doesnít end with a slash, append a slash.  */
+  /* If the directory path doesn”¥ end with a slash, append a slash.  */
   if (entry_path[path_len - 1] != '/')
     {
       entry_path[path_len] = '/';
@@ -414,5 +414,3 @@ int sysinfo_handler(int argc,char **argv)
   fprintf (my_stdout,"process count : %d\n", si.procs);
   return 0;
 }
-
-/*----------------------------- End Of File --------------------------------*/
