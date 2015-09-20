@@ -1,3 +1,4 @@
+
 void expand()
 {
   int i=0,j=0,k=0,t=0,len = strlen(buf),x=0;
